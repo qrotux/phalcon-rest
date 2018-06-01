@@ -2,6 +2,8 @@
 
 namespace PhalconRest\Export\Documentation;
 
+use PhalconRest\Api\ApiRequest;
+
 class ApiEndpoint
 {
     protected $name;
@@ -10,6 +12,11 @@ class ApiEndpoint
     protected $path;
     protected $exampleResponse;
     protected $allowedRoles = [];
+
+    /**
+     * @var ApiRequest
+     */
+    protected $request;
 
     public function getName()
     {
@@ -69,5 +76,15 @@ class ApiEndpoint
     public function setAllowedRoles($allowedRoles)
     {
         $this->allowedRoles = $allowedRoles;
+    }
+
+    public function setRequest($request)
+    {
+        $this->request = $request;
+    }
+
+    public function getRequest()
+    {
+        return $this->request;
     }
 }

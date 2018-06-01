@@ -1,0 +1,172 @@
+<?php
+
+namespace PhalconRest\Api;
+
+use Phalcon\Validation;
+use Phalcon\ValidationInterface;
+use Phalcon\Validation\Validator;
+use Phalcon\Http\Request;
+
+class ApiRequest
+{
+
+    /**
+     * @var Validation
+     */
+    protected $validator;
+
+    protected $defaultMessages = [
+        Validator\Alnum::class => 'Alpha-numeric expected',
+        Validator\Alpha::class => 'Alpha expected',
+        Validator\Date::class => 'Date expected',
+        Validator\Digit::class => 'Digit expected',
+        Validator\File::class => 'File expected',
+        Validator\Uniqueness::class => 'Unique value expected',
+        Validator\Numericality::class => 'Number expected',
+        Validator\PresenceOf::class => 'Is required',
+        Validator\Identical::class => 'Should be identical',
+        Validator\Email::class => 'Email expected',
+        Validator\ExclusionIn::class => 'Must not be ...',
+        Validator\InclusionIn::class => 'Should be ...',
+        Validator\Regex::class => 'Incorrect value',
+        Validator\StringLength::class => 'Length is incorrect',
+        Validator\Between::class => 'Should be between ... and ...',
+        Validator\Confirmation::class => 'Doesn\'t match confirmation',
+        Validator\Url::class => 'Must be a URL',
+        Validator\CreditCard::class => 'Credit card number incorrect',
+    ];
+
+    public function __construct()
+    {
+        $this->validator = new Validation();
+    }
+
+    /**
+     * @return Validation
+     */
+    public function getValidator()
+    {
+        return $this->validator;
+    }
+
+    public function setValidator(ValidationInterface $validator)
+    {
+        $this->validator = $validator;
+
+        return $this;
+    }
+
+    /**
+     * Setup rules in this method
+     *
+     * Like:
+     *  $this->addRule('name', PresenceOf, 'Name is required')
+     *
+     */
+    public function initialize()
+    {
+
+    }
+
+    /**
+     * @param $field
+     * @param Validator $validator
+     * @param null|string $message
+     * @return $this
+     */
+    public function addRule($field, Validator $validator, $message = null)
+    {
+
+        if (!$validator->hasOption('message')) {
+            if (!$message and isset($this->defaultMessages[get_class($validator)])) {
+                $message = $this->defaultMessages[get_class($validator)];
+            }
+
+            $validator->setOption('message', $message);
+        }
+
+        $this->validator->add($field, $validator);
+
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param string|array $filters
+     * @return $this
+     */
+    public function addFilter($field, $filters)
+    {
+
+        $this->validator->setFilters($field, $filters);
+
+        return $this;
+    }
+
+    /**
+     * @param null|string $field
+     * @return mixed
+     */
+    public function getFilters($field = null)
+    {
+        return $this->validator->getFilters($field);
+    }
+
+    /**
+     * @param $request array|Request
+     * @return Validation\Message\Group
+     */
+    public function validate($request)
+    {
+        if ($request instanceof Request) {
+            $request = $request->getPost();
+        }
+
+        return $this->validator->validate($request);
+    }
+
+    /**
+     * Return array of validation rules:
+     *
+     * {
+     *   fields: [
+     *     {
+     *       field: 'name',
+     *       rules: [
+     *         class: 'Phalcon\Validation\Validator\PresenceOf',
+     *         info: null|description 'Should be presented'
+     *       ]
+     *     }
+     *   ]
+     * }
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $rules = [];
+
+        foreach ($this->validator->getValidators() as $item) {
+            $field = $item[0];
+
+            $validator = $item[1];
+
+            if (!array_key_exists($field, $rules)) {
+                $rules[$field] = [
+                    'field' => $field,
+                ];
+            }
+
+            $rules[$field]['rules'][] = [
+                'class' => get_class($validator),
+                'description' => $validator->getOption('description'),
+            ];
+        }
+
+        $rules = array_values($rules);
+
+        return [
+            'fields' => $rules
+        ];
+    }
+}

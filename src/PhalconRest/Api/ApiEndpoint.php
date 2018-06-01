@@ -27,6 +27,7 @@ class ApiEndpoint
     protected $allowedRoles = [];
     protected $deniedRoles = [];
 
+    protected $requestClass = ApiRequest::class;
 
     public function __construct($path, $httpMethod = HttpMethods::GET, $handlerMethod = null)
     {
@@ -298,6 +299,32 @@ class ApiEndpoint
     public function getExampleResponse()
     {
         return $this->exampleResponse;
+    }
+
+    /**
+     * @param $class string
+     * @return $this
+     */
+    public function setRequestClass($class)
+    {
+        $this->requestClass = $class;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestClass()
+    {
+        return $this->requestClass;
+    }
+
+    /**
+     * @return ApiRequest
+     */
+    public function getRequest()
+    {
+        return new $this->requestClass;
     }
 
     /**
