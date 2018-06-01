@@ -72,17 +72,24 @@ class ApiRequest
      * @param $field
      * @param Validator $validator
      * @param null|string $message
+     * @param null|string $description
      * @return $this
      */
-    public function addRule($field, Validator $validator, $message = null)
+    public function addRule($field, Validator $validator, $message = null, $description = null)
     {
 
+        $class = get_class($validator);
+
         if (!$validator->hasOption('message')) {
-            if (!$message and isset($this->defaultMessages[get_class($validator)])) {
-                $message = $this->defaultMessages[get_class($validator)];
+            if (!$message and array_key_exists($class, $this->defaultMessages)) {
+                $message = $this->defaultMessages[$class];
             }
 
             $validator->setOption('message', $message);
+        }
+
+        if (!$validator->hasOption('description')) {
+            $validator->setOption('description', $description);
         }
 
         $this->validator->add($field, $validator);
