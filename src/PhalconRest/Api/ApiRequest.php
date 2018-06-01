@@ -39,6 +39,8 @@ class ApiRequest
     public function __construct()
     {
         $this->validator = new Validation();
+
+        $this->initialize();
     }
 
     /**
