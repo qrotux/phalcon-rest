@@ -29,6 +29,8 @@ class ApiEndpoint
 
     protected $requestClass = ApiRequest::class;
 
+    protected $requestObject;
+
     public function __construct($path, $httpMethod = HttpMethods::GET, $handlerMethod = null)
     {
         $this->path = $path;
@@ -324,7 +326,11 @@ class ApiEndpoint
      */
     public function getRequest()
     {
-        return new $this->requestClass;
+        if (!$this->requestObject or get_class($this->requestObject) != $this->getRequestClass()) {
+            $this->requestObject = new $this->requestClass;
+        }
+
+        return $this->requestObject;
     }
 
     /**
