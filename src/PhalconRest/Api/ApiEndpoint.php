@@ -83,7 +83,9 @@ class ApiEndpoint
      */
     public static function factory($path, $httpMethod = HttpMethods::GET, $handlerMethod = null)
     {
-        return new ApiEndpoint($path, $httpMethod, $handlerMethod);
+        $factoryClass = get_called_class();
+
+        return new $factoryClass($path, $httpMethod, $handlerMethod);
     }
 
     /**
