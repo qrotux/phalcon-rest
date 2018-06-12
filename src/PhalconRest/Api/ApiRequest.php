@@ -143,7 +143,8 @@ class ApiRequest
      *       field: 'name',
      *       rules: [
      *         class: 'Phalcon\Validation\Validator\PresenceOf',
-     *         info: null|description 'Should be presented'
+     *         message: null|message 'Should be presented'
+     *         description: null|description 'Should be presented'
      *       ]
      *     }
      *   ]
@@ -166,9 +167,58 @@ class ApiRequest
                 ];
             }
 
+            $options = [
+                'message',
+                'min', // Validator\StringLength
+                'max', // Validator\StringLength
+                'messageMaximum', // Validator\StringLength
+                'messageMinimum', // Validator\StringLength
+                'format', // Validator\Date
+                'maxSize', // Validator\File
+                'messageSize', // Validator\File
+                'messageType', // Validator\File
+                'maxResolution', // Validator\File
+                'messageMaxResolution', // Validator\File
+                'accepted', // Validator\Identical
+                'domain', // Validator\ExclusionIn, Validator\InclusionIn
+                'pattern', // Validator\Regex
+                'minimum', // Validator\Between
+                'maximum', // Validator\Between
+                'with', // Validator\Confirmation
+            ];
+
+            $extendedOptions = $validator->getOption('extendedOptions');
+
+            if ($extendedOptions) {
+                $options = array_merge($options, (array)$extendedOptions);
+            }
+
+            $replaces = [
+                ':field' => $field,
+            ];
+
+            foreach ($options as $option) {
+                if ($validator->hasOption($option)) {
+                    $value = $validator->getOption($option);
+
+                    if (is_array($value)) {
+                        $value = implode(', ', $value);
+                    }
+
+                    $replaces[':' . $option] = $value;
+                }
+            }
+
+            $description = $validator->getOption('description');
+
+            if ($description !== null) {
+                $description = strtr($description, $replaces);
+            }
+
             $rules[$field]['rules'][] = [
                 'class' => get_class($validator),
-                'description' => $validator->getOption('description'),
+                'message' => $validator->getOption('message'),
+                'description' => $description,
             ];
         }
 
