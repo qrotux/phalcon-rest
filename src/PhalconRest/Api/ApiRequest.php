@@ -211,6 +211,10 @@ class ApiRequest
 
             $description = $validator->getOption('description');
 
+            if ($description === null) {
+                $description = $validator->getOption('message');
+            }
+
             if ($description !== null) {
                 $description = strtr($description, $replaces);
             }
