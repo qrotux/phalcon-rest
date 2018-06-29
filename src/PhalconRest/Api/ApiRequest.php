@@ -216,7 +216,11 @@ class ApiRequest
             $message = $validator->getOption('message');
 
             if ($message === null) {
-                $message = $this->validator->getDefaultMessage($field);
+                $typeClass = get_class($validator);
+
+                $type = substr($typeClass, strrpos($typeClass, '\\') + 1);
+
+                $message = $this->validator->getDefaultMessage($type);
             }
 
             $description = $validator->getOption('description');
