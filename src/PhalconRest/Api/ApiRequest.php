@@ -213,10 +213,16 @@ class ApiRequest
                 }
             }
 
+            $message = $validator->getOption('message');
+
+            if ($message === null) {
+                $message = $this->validator->getDefaultMessage($field);
+            }
+
             $description = $validator->getOption('description');
 
             if ($description === null) {
-                $description = $validator->getOption('message');
+                $description = $message;
             }
 
             if ($description !== null) {
@@ -225,7 +231,7 @@ class ApiRequest
 
             $rules[$field]['rules'][] = [
                 'class' => get_class($validator),
-                'message' => $validator->getOption('message'),
+                'message' => $message,
                 'description' => $description,
             ];
         }
