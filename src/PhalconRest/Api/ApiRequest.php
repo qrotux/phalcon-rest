@@ -161,6 +161,10 @@ class ApiRequest
 
             $validator = $item[1];
 
+            if (!($label = $this->validator->getLabel($field))) {
+                $label = $field;
+            }
+
             if (!array_key_exists($field, $rules)) {
                 $rules[$field] = [
                     'field' => $field,
@@ -194,7 +198,7 @@ class ApiRequest
             }
 
             $replaces = [
-                ':field' => $field,
+                ':field' => $label,
             ];
 
             foreach ($options as $option) {
